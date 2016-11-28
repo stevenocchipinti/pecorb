@@ -13,16 +13,16 @@ CSI = "\e["
 
 
 def read_char
-  STDIN.echo = false
-  STDIN.raw!
-  input = STDIN.getc.chr
+  $stdin.echo = false
+  $stdin.raw!
+  input = $stdin.getc.chr
   if input == "\e" then
-    input << STDIN.read_nonblock(3) rescue nil
-    input << STDIN.read_nonblock(2) rescue nil
+    input << $stdin.read_nonblock(3) rescue nil
+    input << $stdin.read_nonblock(2) rescue nil
   end
 ensure
-  STDIN.echo = true
-  STDIN.cooked!
+  $stdin.echo = true
+  $stdin.cooked!
   return input
 end
 
@@ -119,8 +119,13 @@ def prompt(items, prompt="Select an item: ")
   end
 
   from_start_to_end
-  puts "You picked: #{@displayed_items[@selected]}"
+  $stdout.puts @displayed_items[@selected]
 end
 
+input = ARGF.readlines.map(&:strip).reject(&:empty?)
 
-prompt %w[Apples Bananas Carrots Oranges]
+# After reading from $stdin (file, pipe, etc.), switch $stdin to be the users
+# terminal to present the prompt
+$stdin.reopen(File.open("/dev/tty", "r"))
+
+prompt input unless input.empty?

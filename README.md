@@ -3,7 +3,7 @@ PECOrb
 
 A ruby version of [peco](https://github.com/peco/peco)
 
-**Status:** Not working properly
+**Status:** Working!
 
 
 Useful Resources:
