@@ -26,13 +26,6 @@ ensure
   return input
 end
 
-def debug(str)
-  $stderr.print "#{CSI}s"
-  $stderr.print "#{CSI}10B\r"
-  $stderr.print "#{str}#{CSI}K"
-  $stderr.print "#{CSI}u"
-end
-
 def replace_input(str)
   $stderr.print "#{CSI}s"
   $stderr.print "\b"*@cursor
