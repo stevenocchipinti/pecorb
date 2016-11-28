@@ -47,9 +47,14 @@ def replace_items
   $stderr.print "#{CSI}B#{CSI}K" * @displayed_items.size
   $stderr.print "#{CSI}A" * (@displayed_items.size - 1) if @displayed_items.size > 0
   new_items = yield
-  print_items new_items
   @displayed_items = new_items
+  @selected = limit_max @selected, @displayed_items.size - 1
+  print_items new_items
   $stderr.print "#{CSI}u"
+end
+
+def limit_max(n, max)
+  [[max, n].min, 0].max
 end
 
 def print_items(items)
