@@ -102,13 +102,17 @@ module Pecorb
 
   def replace_items
     return unless block_given?
+    list_size = @displayed_items.size
     $stderr.print "#{CSI}s"
     $stderr.print "#{CSI}\r"
-    $stderr.print "#{CSI}B#{CSI}K" * @displayed_items.size
-    $stderr.print "#{CSI}A" * (@displayed_items.size - 1) if @displayed_items.size > 0
+    $stderr.print "#{CSI}B#{CSI}K"
+    if list_size > 0
+      $stderr.print "#{CSI}B#{CSI}K" * (list_size - 1)
+      $stderr.print "#{CSI}A" * (list_size - 1)
+    end
     new_items = yield
     @displayed_items = new_items
-    @selected = limit_max @selected, @displayed_items.size - 1
+    @selected = limit_max @selected, list_size - 1
     print_items new_items
     $stderr.print "#{CSI}u"
   end
