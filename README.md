@@ -65,9 +65,17 @@ tag for the version, push git commits and tags, and push the `.gem` file to
 Bug reports and pull requests are welcome on GitHub at
 https://github.com/stevenocchipinti/pecorb.
 
-
 ## License
 
 The gem is available as open source under the terms of the
 [MIT License](http://opensource.org/licenses/MIT).
 
+## Kudos
+
+Inspiration and education came from these resources:
+- [inquirer.js](https://github.com/SBoudrias/Inquirer.js/)
+- [inquirer.rb](https://github.com/arlimus/inquirer.rb)
+- [peco](https://github.com/peco/peco)
+- [percol](https://github.com/mooz/percol)
+- [Random Access Terminal - Blog Post](http://graysoftinc.com/terminal-tricks/random-access-terminal)
+- [ANSI Escape Codes - Wikipedia](https://en.wikipedia.org/wiki/ANSI_escape_code)
