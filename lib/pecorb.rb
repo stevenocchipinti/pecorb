@@ -16,9 +16,7 @@ module Pecorb
     @displayed_items = @items = items
     @prompt = prompt
 
-    puts prompt
-    print_items(items)
-    move_cursor_from_end_to_start
+    print_menu
 
     while c = read_char
       case c
@@ -27,6 +25,9 @@ module Pecorb
       when /[]/
         @input = ""
         break
+      when /[]/
+        clear_screen
+        print_menu
       when "" # Backspace key
         next if @input.empty? || @cursor <= 0
         @input.slice!(@cursor-1)
@@ -64,6 +65,13 @@ module Pecorb
 
   private
 
+  def print_menu
+    puts @prompt
+    print_items(@displayed_items)
+    move_cursor_from_end_to_start
+    print @input
+  end
+
   def move_cursor_from_end_to_start
     up(@displayed_items.size + 1)
     right(@prompt.size)
@@ -86,8 +94,8 @@ module Pecorb
     return unless block_given?
     list_size = @displayed_items.size
     save_pos do
-      carriage_return
       down
+      carriage_return
       clear_to_eol
       if list_size > 0
         (list_size - 1).times { down; clear_to_eol}
