@@ -7,6 +7,8 @@ module Pecorb
   KILL_LINE_CHAR = "\x1B[K"
   CURSOR_UP_CHAR = "\x1B[A"
   CSI = "\e["
+  SELECTED_COLOR = "#{CSI}\e[36m"
+  RESET_COLOR = "#{CSI}\e[0m"
 
   @input = ""
   @cursor = 0
@@ -117,7 +119,7 @@ module Pecorb
 
   def print_items(items)
     items.each_with_index do |item, i|
-      $stderr.puts "#{@selected == i ? "‣" : " "} #{item}"
+      $stderr.puts "#{@selected == i ? "#{SELECTED_COLOR}‣" : " "} #{item}#{RESET_COLOR}"
     end
   end
 
