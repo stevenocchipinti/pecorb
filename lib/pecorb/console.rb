@@ -21,16 +21,14 @@ module Console
     return input
   end
 
-  def puts(val)           $stderr.puts val                  end
   def print(val)          $stderr.print val                 end
+  def puts(val)           $stderr.puts val                  end
+  def output(val)         $stdout.puts val                  end
 
   def up(n=1)             $stderr.print "#{CSI}#{n}A"       end
   def down(n=1)           $stderr.print "#{CSI}#{n}B"       end
   def right(n=1)          $stderr.print "#{CSI}#{n}C"       end
   def left(n=1)           $stderr.print "#{CSI}#{n}D"       end
-
-  def save_pos()          $stderr.print "#{CSI}s"           end
-  def load_pos()          $stderr.print "#{CSI}u"           end
 
   def backspace(n=1)      $stderr.print "\b"*n              end
   def carriage_return()   $stderr.print "\r"                end
@@ -45,4 +43,13 @@ module Console
   def cyan()              $stderr.print "#{CSI}#{CSI}36m"   end
   def white()             $stderr.print "#{CSI}#{CSI}37m"   end
   def reset_color()       $stderr.print "#{CSI}#{CSI}0m"    end
+
+  def save_pos
+    $stderr.print "#{CSI}s"
+    if block_given?
+      yield
+      load_pos
+    end
+  end
+  def load_pos() $stderr.print "#{CSI}u" end
 end

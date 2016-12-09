@@ -58,7 +58,7 @@ module Pecorb
     end
 
     move_cursor_from_start_to_end
-    $stdout.puts @displayed_items[@selected]
+    output @displayed_items[@selected]
     @displayed_items[@selected]
   end
 
@@ -75,28 +75,28 @@ module Pecorb
   end
 
   def replace_input(str)
-    save_pos
-    backspace(@cursor)
-    print @input
-    clear_to_eol
-    load_pos
+    save_pos do
+      backspace(@cursor)
+      print @input
+      clear_to_eol
+    end
   end
 
   def replace_items
     return unless block_given?
     list_size = @displayed_items.size
-    save_pos
-    carriage_return
-    down
-    clear_to_eol
-    if list_size > 0
-      (list_size - 1).times { down; clear_to_eol}
-      (list_size - 1).times { up }
+    save_pos do
+      carriage_return
+      down
+      clear_to_eol
+      if list_size > 0
+        (list_size - 1).times { down; clear_to_eol}
+        (list_size - 1).times { up }
+      end
+      @displayed_items = yield
+      @selected = limit_max @selected, list_size - 1
+      print_items @displayed_items
     end
-    @displayed_items = yield
-    @selected = limit_max @selected, list_size - 1
-    print_items @displayed_items
-    load_pos
   end
 
   def limit_max(n, max)
