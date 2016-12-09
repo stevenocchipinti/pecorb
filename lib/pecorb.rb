@@ -1,14 +1,9 @@
 require_relative "pecorb/version"
-require "io/console"
+require_relative "pecorb/console"
 
 module Pecorb
   extend self
-
-  KILL_LINE_CHAR = "\x1B[K"
-  CURSOR_UP_CHAR = "\x1B[A"
-  CSI = "\e["
-  SELECTED_COLOR = "#{CSI}\e[36m"
-  RESET_COLOR = "#{CSI}\e[0m"
+  extend Console
 
   @input = ""
   @cursor = 0
@@ -21,7 +16,7 @@ module Pecorb
     @displayed_items = @items = items
     @prompt = prompt
 
-    $stderr.puts prompt
+    puts prompt
     print_items(items)
     move_cursor_from_end_to_start
 
@@ -37,27 +32,27 @@ module Pecorb
         @input.slice!(@cursor-1)
         replace_input(@input)
         replace_items { filter_items(@items, @input) }
-        $stderr.print "\b"
+        backspace
         @cursor -= 1
-      when "#{CSI}D" # Left arrow key
+      when Console::LEFT
         next unless @cursor > 0
-        $stderr.print c
+        print c
         @cursor -= 1
-      when "#{CSI}C" # Right arrow key
+      when Console::RIGHT
         next unless @cursor < @input.length
-        $stderr.print c
+        print c
         @cursor += 1
-      when "#{CSI}A" # Up arrow key
+      when Console::UP
         @selected -= 1 if @selected > 0
         replace_items { filter_items(@items, @input) }
-      when "#{CSI}B" # Down arrow key
+      when Console::DOWN
         @selected += 1 if @selected < @displayed_items.size - 1
         replace_items { filter_items(@items, @input) }
       else
         @input.insert(@cursor, c)
         replace_input(@input)
         replace_items { filter_items(@items, @input) }
-        $stderr.print c
+        print c
         @cursor += 1
       end
     end
@@ -70,51 +65,38 @@ module Pecorb
   private
 
   def move_cursor_from_end_to_start
-    # Move up x times and right y times
-    $stderr.print "#{CSI}#{@displayed_items.size+1}A#{CSI}#{@prompt.length}C"
+    up(@displayed_items.size + 1)
+    right(@prompt.size)
   end
 
   def move_cursor_from_start_to_end
-    # Move down x times and then to the start of the line
-    $stderr.print "#{CSI}#{@displayed_items.size+1}B\r"
-  end
-
-  def read_char
-    $stdin.echo = false
-    $stdin.raw!
-    input = $stdin.getc.chr
-    if input == "\e" then
-      input << $stdin.read_nonblock(3) rescue nil
-      input << $stdin.read_nonblock(2) rescue nil
-    end
-  ensure
-    $stdin.echo = true
-    $stdin.cooked!
-    return input
+    down(@displayed_items.size + 1)
+    carriage_return
   end
 
   def replace_input(str)
-    $stderr.print "#{CSI}s"
-    $stderr.print "\b"*@cursor
-    $stderr.print "#{@input}#{CSI}K"
-    $stderr.print "#{CSI}u"
+    save_pos
+    backspace(@cursor)
+    print @input
+    clear_to_eol
+    load_pos
   end
 
   def replace_items
     return unless block_given?
     list_size = @displayed_items.size
-    $stderr.print "#{CSI}s"
-    $stderr.print "#{CSI}\r"
-    $stderr.print "#{CSI}B#{CSI}K"
+    save_pos
+    carriage_return
+    down
+    clear_to_eol
     if list_size > 0
-      $stderr.print "#{CSI}B#{CSI}K" * (list_size - 1)
-      $stderr.print "#{CSI}A" * (list_size - 1)
+      (list_size - 1).times { down; clear_to_eol}
+      (list_size - 1).times { up }
     end
-    new_items = yield
-    @displayed_items = new_items
+    @displayed_items = yield
     @selected = limit_max @selected, list_size - 1
-    print_items new_items
-    $stderr.print "#{CSI}u"
+    print_items @displayed_items
+    load_pos
   end
 
   def limit_max(n, max)
@@ -123,7 +105,14 @@ module Pecorb
 
   def print_items(items)
     items.each_with_index do |item, i|
-      $stderr.puts "#{@selected == i ? "#{SELECTED_COLOR}‣" : " "} #{item}#{RESET_COLOR}"
+      if @selected == i
+        cyan
+        print "‣ "
+      else
+        print "  "
+      end
+      puts item
+      reset_color
     end
   end
 
