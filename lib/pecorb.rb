@@ -44,10 +44,10 @@ module Pecorb
         print c
         @cursor += 1
       when Console::UP
-        @selected -= 1 if @selected > 0
+        @selected = (@selected - 1) % @displayed_items.size
         replace_items { filter_items(@items, @input) }
       when Console::DOWN
-        @selected += 1 if @selected < @displayed_items.size - 1
+        @selected = (@selected + 1) % @displayed_items.size
         replace_items { filter_items(@items, @input) }
       else
         @input.insert(@cursor, c)
