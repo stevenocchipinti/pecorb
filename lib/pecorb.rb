@@ -23,8 +23,9 @@ module Pecorb
       when /[\r]/
         break
       when /[]/
-        @input = ""
-        break
+        carriage_return
+        clear_to_eos
+        exit 0
       when /[]/
         clear_screen
         print_menu

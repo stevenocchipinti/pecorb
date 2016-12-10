@@ -34,6 +34,7 @@ module Pecorb
     def backspace(n=1)      $stderr.print "\b"*n              end
     def carriage_return()   $stderr.print "\r"                end
     def clear_to_eol()      $stderr.print "#{CSI}K"           end
+    def clear_to_eos()      $stderr.print "#{CSI}J"           end
     def clear_screen()      $stderr.print "#{CSI}H#{CSI}J"    end
 
     def black()             $stderr.print "#{CSI}#{CSI}30m"   end
