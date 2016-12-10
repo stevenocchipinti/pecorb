@@ -1,10 +1,14 @@
 #!/usr/bin/env ruby
 require_relative "../lib/pecorb"
 
+Pecorb.configure do |config|
+  config.output_stream = $stdout.isatty ? $stdout : $stderr
+end
+
 input = ARGF.readlines.map(&:strip).reject(&:empty?)
 
 # After reading from $stdin (file, pipe, etc.), switch $stdin to be the users
-# terminal to present the prompt
+# terminal so they can interact with the prompt
 $stdin.reopen(File.open("/dev/tty", "r"))
 
-Pecorb.prompt input unless input.empty?
+$stdout.puts Pecorb.list input unless input.empty?
