@@ -20,16 +20,16 @@ module Pecorb
 
     while c = read_char
       case c
-      when /[\r]/
+      when '', "\r"
         break
-      when /[]/
+      when ''
         carriage_return
         clear_to_eos
         exit 0
-      when /[]/
+      when ''
         clear_screen
         print_menu
-      when "" # Backspace key
+      when '' # Backspace key
         next if @input.empty? || @cursor <= 0
         @input.slice!(@cursor-1)
         replace_input(@input)
@@ -44,10 +44,10 @@ module Pecorb
         next unless @cursor < @input.length
         print c
         @cursor += 1
-      when Console::UP
+      when Console::UP, ''
         @selected = (@selected - 1) % @displayed_items.size
         replace_items { filter_items(@items, @input) }
-      when Console::DOWN
+      when Console::DOWN, "\n" # CTRL-J enters a linefeed char in bash
         @selected = (@selected + 1) % @displayed_items.size
         replace_items { filter_items(@items, @input) }
       else

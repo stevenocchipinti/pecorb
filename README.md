@@ -50,6 +50,15 @@ Pecorb.prompt %w[Apples Bananas Cake Donuts]
 Pecorb.prompt %w[Apples Bananas Cake Donuts], "Favourite food: "
 ```
 
+## Key Bindings
+
+- `up` and `ctrl-k` will move up through the list
+- `down` and `ctrl-j` will move down through the list
+- `ctrl-l` will clear the screen and re-print the menu
+- `crtl-c` will exit (with exit code `0`)
+- `ctrl-d` (`eof`) and `enter` (`\r`) will select the item
+- `baskspace`, `left` and `right` do what you would expect
+
 ## Development
 
 After checking out the repo, run `bundle install` to install dependencies.
