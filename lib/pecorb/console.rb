@@ -1,4 +1,5 @@
 require "io/console"
+require_relative "../pecorb"
 
 module Pecorb
   module Console
@@ -22,8 +23,8 @@ module Pecorb
       return input
     end
 
-    def puts(val)           output_stream.puts val                  end
-    def print(val)          output_stream.print val                 end
+    def puts(val="")        output_stream.puts val                  end
+    def print(val="")       output_stream.print val                 end
 
     def up(n=1)             output_stream.print "#{CSI}#{n}A"       end
     def down(n=1)           output_stream.print "#{CSI}#{n}B"       end

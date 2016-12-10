@@ -5,7 +5,7 @@ module Pecorb
   extend self
 
   def list(*args)
-    List.prompt(*args)
+    List.new(*args).prompt
   end
 
   DefaultConfig = Struct.new(:input_stream, :output_stream) do
