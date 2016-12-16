@@ -20,7 +20,7 @@ module Pecorb
         case c
         when "", "\r"
           break
-        when ""
+        when "", ""
           carriage_return
           clear_to_eos
           exit 0
