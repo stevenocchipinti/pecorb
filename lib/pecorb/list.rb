@@ -7,15 +7,13 @@ module Pecorb
     def initialize(items, opts={})
       raise "Items must be enumerable!" unless items.is_a? Enumerable
       @prompt = opts.fetch(:prompt, "Select an item: ")
-
       @displayed_items = @configured_items = items
       @cursor = @selected = 0
       @filter_text = ""
     end
 
     def prompt
-      print @prompt
-      update_ui
+      init_ui
       while c = read_char
         case c
         when "", "\r"
@@ -66,6 +64,15 @@ module Pecorb
     end
 
     private
+
+    def init_ui
+      # WARNING: Can't use save_pos here because it causes problems when
+      # introducing newlines, see issue #1
+      puts
+      print_items
+      carriage_return; (@displayed_items.size + 1).times { up }
+      print @prompt
+    end
 
     def update_ui
       save_pos do

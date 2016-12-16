@@ -47,6 +47,8 @@ module Pecorb
     def white()             output_stream.print "#{CSI}#{CSI}37m"   end
     def reset_color()       output_stream.print "#{CSI}#{CSI}0m"    end
 
+    # WARNING: Only use this for updates, when we can be sure no new lines will
+    # be added as this causes lines to be overwritten, see issue #1
     def save_pos
       output_stream.print "#{CSI}s"
       if block_given?
