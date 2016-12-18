@@ -1,7 +1,7 @@
 require_relative "../../lib/pecorb/pager"
 
 RSpec.describe Pecorb::Pager do
-  let(:items) { %w[one two three four five] }
+  let(:items) { %w[one two three four five six] }
   let(:viewport) { 4 }
   let(:pager) { described_class.new(items, viewport) }
 
@@ -18,6 +18,8 @@ RSpec.describe Pecorb::Pager do
         pager.down
         expect(pager.selected_item).to eq("five")
         pager.down
+        expect(pager.selected_item).to eq("six")
+        pager.down
         expect(pager.selected_item).to eq("one")
       end
 
@@ -32,6 +34,8 @@ RSpec.describe Pecorb::Pager do
         pager.down
         expect(pager.items_in_viewport).to eq(%w[two three four five])
         pager.down
+        expect(pager.items_in_viewport).to eq(%w[three four five six])
+        pager.down
         expect(pager.items_in_viewport).to eq(%w[one two three four])
       end
     end
@@ -39,6 +43,8 @@ RSpec.describe Pecorb::Pager do
     context "when reaching the start of the visible items" do
       it "wraps around to the end" do
         expect(pager.selected_item).to eq("one")
+        pager.up
+        expect(pager.selected_item).to eq("six")
         pager.up
         expect(pager.selected_item).to eq("five")
         pager.up
@@ -54,11 +60,13 @@ RSpec.describe Pecorb::Pager do
       it "scrolls the whole items up with the cursor" do
         expect(pager.items_in_viewport).to eq(%w[one two three four])
         pager.up
-        expect(pager.items_in_viewport).to eq(%w[two three four five])
+        expect(pager.items_in_viewport).to eq(%w[three four five six])
         pager.up
-        expect(pager.items_in_viewport).to eq(%w[two three four five])
+        expect(pager.items_in_viewport).to eq(%w[three four five six])
         pager.up
-        expect(pager.items_in_viewport).to eq(%w[two three four five])
+        expect(pager.items_in_viewport).to eq(%w[three four five six])
+        pager.up
+        expect(pager.items_in_viewport).to eq(%w[three four five six])
         pager.up
         expect(pager.items_in_viewport).to eq(%w[two three four five])
         pager.up
@@ -77,7 +85,6 @@ RSpec.describe Pecorb::Pager do
           expect(pager.selected_item).to eq("five")
           expect(pager.items_in_viewport).to eq(%w[two three four five])
           pager.items = new_items
-
           expect(pager.selected_item).to eq("four")
           expect(pager.items_in_viewport).to eq(%w[one two four])
         end
@@ -90,6 +97,21 @@ RSpec.describe Pecorb::Pager do
           pager.items = new_items
           expect(pager.selected_item).to eq("one")
           expect(pager.items_in_viewport).to eq(%w[one two four])
+        end
+      end
+
+      context "the viewport contains the selected item and no blanks" do
+        it "should not move the viewport" do
+          expect(pager.selected_item).to eq("one")
+          expect(pager.items_in_viewport).to eq(%w[one two three four])
+          pager.up
+          pager.items = items
+          expect(pager.selected_item).to eq("six")
+          expect(pager.items_in_viewport).to eq(%w[three four five six])
+          pager.up
+          pager.items = items
+          expect(pager.selected_item).to eq("five")
+          expect(pager.items_in_viewport).to eq(%w[three four five six])
         end
       end
     end
