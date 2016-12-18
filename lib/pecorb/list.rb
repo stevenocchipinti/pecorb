@@ -97,7 +97,7 @@ module Pecorb
 
     def update_items
       @displayed_items = fuzzy_filter(@configured_items, @filter_text)
-      @selected = limit_max @selected, @displayed_items.size - 1
+      @selected = @selected.clamp(0, @displayed_items.size - 1)
     end
 
     def print_items
@@ -111,10 +111,6 @@ module Pecorb
         puts item
         reset_color
       end
-    end
-
-    def limit_max(n, max)
-      [[max, n].min, 0].max
     end
 
     def fuzzy_filter(items, filter)
