@@ -6,17 +6,11 @@ It is based on `inquirer.js` and `peco` (which itself is based on `percol`).
 The above mentioned tools are all more feature rich than this one (and I'm sure
 the code is better too), but I wanted a few different features:
 
-- A list that can be navigated using the arrow keys (like `enquirer`)
+- A list that can be navigated using the keyboard (like `enquirer`)
 - Fuzzy filterable (like `ctrl-p` in vim, etc.)
 - Not take over the entire screen (like curses interfaces normally do)
-- (Ideally) dependency free
+- Dependency free (except for development dependencies)
 
-## Status
-
-Currently this works well on the command line but may still have some bugs.
-Using it as part of a ruby program still needs to be tested.
-
-This was written during a hackathon and has no tests :'(
 
 ## Installation
 
@@ -27,12 +21,15 @@ gem 'pecorb'
 ```
 
 And then execute:
+```
+$ bundle
+```
 
-    $ bundle
+Or install it system wide for use on the command line:
+```
+$ gem install pecorb
+```
 
-Or install it yourself as:
-
-    $ gem install pecorb
 
 ## Usage
 
@@ -46,18 +43,29 @@ pecorb myFile.txt
 For use in a ruby program:
 
 ```ruby
-Pecorb.prompt %w[Apples Bananas Cake Donuts]
-Pecorb.prompt %w[Apples Bananas Cake Donuts], "Favourite food: "
+result = Pecorb.list %w[Apples Bananas Cake Donuts]
+result = Pecorb.list %w[Apples Bananas Cake Donuts], prompt: "Favourite food: "
 ```
+
 
 ## Key Bindings
 
 - `up` and `ctrl-k` will move up through the list
 - `down` and `ctrl-j` will move down through the list
 - `ctrl-l` will clear the screen and re-print the menu
-- `crtl-c` will exit (with exit code `0`)
+- `crtl-c` and `escape` will exit (with exit code `0`)
 - `ctrl-d` (`eof`) and `enter` (`\r`) will select the item
 - `baskspace`, `left` and `right` do what you would expect
+
+
+## Status
+
+Currently this seems to work well on the command line and as a ruby library.
+
+There are some tests but not great coverage. The complex parts are mainly the
+paging logic (which does have tests) and the random access terminal printing
+that makes up the user interface (which doesn't have tests).
+
 
 ## Development
 
@@ -69,15 +77,18 @@ run `bundle install` and `bundle exec rake release`, which will create a git
 tag for the version, push git commits and tags, and push the `.gem` file to
 [rubygems.org](https://rubygems.org).
 
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at
 https://github.com/stevenocchipinti/pecorb.
 
+
 ## License
 
 The gem is available as open source under the terms of the
 [MIT License](http://opensource.org/licenses/MIT).
+
 
 ## Kudos
 
