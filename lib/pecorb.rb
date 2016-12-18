@@ -25,11 +25,3 @@ module Pecorb
     @config || configure
   end
 end
-
-module Comparable
-  def clamp(min, max)
-    return min if self < min
-    return max if self > max
-    self
-  end
-end

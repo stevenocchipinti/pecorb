@@ -1,4 +1,5 @@
 require_relative "console"
+require_relative "../core_extensions/comparable"
 
 module Pecorb
   class List
