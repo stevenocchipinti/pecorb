@@ -1,7 +1,6 @@
 require_relative "console"
 require_relative "../core_extensions/comparable"
-
-# TODO: Separate pager and user input responsibilities
+require_relative "pager"
 
 module Pecorb
   class List
@@ -10,11 +9,8 @@ module Pecorb
     def initialize(items, opts={})
       raise "Items must be enumerable!" unless items.is_a? Enumerable
       @prompt = opts.fetch(:prompt, "Select an item: ")
-      @cursor = @row_cursor = @selected = 0
-      @display_limit = IO.console.winsize.first - 2
-      @page = 0
-      @matching_items = @configured_items = items
-      @displayed_items = @configured_items.slice(0, @display_limit)
+      @pager = Pager.new items, IO.console.winsize.first - 2
+      @cursor = 0
       @filter_text = ""
     end
 
@@ -48,14 +44,10 @@ module Pecorb
           print c
           @cursor += 1
         when Console::UP, ""
-          new_selection = @selected - 1
-          @page -= 1 if new_selection - 1 < 0
-          @selected = new_selection % @displayed_items.size
+          @pager.up
           update_ui
         when Console::DOWN, "\n" # CTRL-J enters a linefeed char in bash
-          new_selection = @selected + 1
-          @page += 1 if new_selection + 1 > @display_limit
-          @selected = new_selection % @displayed_items.size
+          @pager.down
           update_ui
         else
           @filter_text.insert(@cursor, c)
@@ -68,9 +60,9 @@ module Pecorb
       backspace(@cursor)
       clear_to_eos
       cyan
-      puts @displayed_items[@selected]
+      puts @pager.selected_item
       reset_color
-      @displayed_items[@selected]
+      @pager.selected_item
     end
 
     private
@@ -80,7 +72,7 @@ module Pecorb
       # introducing newlines, see issue #1
       puts
       print_items
-      carriage_return; (@displayed_items.size + 1).times { up }
+      carriage_return; (@pager.items_in_viewport.size + 1).times { up }
       print @prompt
     end
 
@@ -88,7 +80,7 @@ module Pecorb
       save_pos do
         update_filter_text
         clear_items
-        update_items
+        @pager.filter! @filter_text
         print_items
       end
     end
@@ -101,21 +93,13 @@ module Pecorb
 
     def clear_items
       carriage_return; down; clear_to_eol
-      @displayed_items.size.times { down; clear_to_eol }
-      @displayed_items.size.times { up }
-    end
-
-    def update_items
-      regex = Regexp.new(@filter_text.chars.join(".*"), "i")
-      @matching_items = @configured_items.select {|i| regex.match i }
-      start_index = @page * @display_limit
-      @displayed_items = @matching_items.slice(start_index, @display_limit)
-      @selected = @selected.clamp(0, @displayed_items.size - 1)
+      @pager.items_in_viewport.size.times { down; clear_to_eol }
+      @pager.items_in_viewport.size.times { up }
     end
 
     def print_items
-      @displayed_items.each_with_index do |item, i|
-        if @selected == i
+      @pager.items_in_viewport.each_with_index do |item, i|
+        if item == @pager.selected_item
           cyan
           print "‣ "
         else

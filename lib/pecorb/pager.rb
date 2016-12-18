@@ -40,18 +40,21 @@ module Pecorb
 
     def move_cursor_by(number)
       new_cursor = @cursor + number
+
       if new_cursor >= @items.size
         @cursor = 0
         reset_viewport
       elsif new_cursor > @viewport.max
         shift_viewport_by(1)
       end
+
       if new_cursor < 0
         @cursor = @items.size - 1
         reset_viewport
       elsif new_cursor < @viewport.min
         shift_viewport_by(-1)
       end
+
       @cursor = new_cursor % @items.size
     end
 
