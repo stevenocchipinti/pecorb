@@ -1,6 +1,8 @@
 require_relative "console"
 require_relative "../core_extensions/comparable"
 
+# TODO: Separate pager and user input responsibilities
+
 module Pecorb
   class List
     include Console
@@ -8,8 +10,11 @@ module Pecorb
     def initialize(items, opts={})
       raise "Items must be enumerable!" unless items.is_a? Enumerable
       @prompt = opts.fetch(:prompt, "Select an item: ")
-      @displayed_items = @configured_items = items
-      @cursor = @selected = 0
+      @cursor = @row_cursor = @selected = 0
+      @display_limit = IO.console.winsize.first - 2
+      @page = 0
+      @matching_items = @configured_items = items
+      @displayed_items = @configured_items.slice(0, @display_limit)
       @filter_text = ""
     end
 
@@ -43,10 +48,14 @@ module Pecorb
           print c
           @cursor += 1
         when Console::UP, ""
-          @selected = (@selected - 1) % @displayed_items.size
+          new_selection = @selected - 1
+          @page -= 1 if new_selection - 1 < 0
+          @selected = new_selection % @displayed_items.size
           update_ui
         when Console::DOWN, "\n" # CTRL-J enters a linefeed char in bash
-          @selected = (@selected + 1) % @displayed_items.size
+          new_selection = @selected + 1
+          @page += 1 if new_selection + 1 > @display_limit
+          @selected = new_selection % @displayed_items.size
           update_ui
         else
           @filter_text.insert(@cursor, c)
@@ -97,7 +106,10 @@ module Pecorb
     end
 
     def update_items
-      @displayed_items = fuzzy_filter(@configured_items, @filter_text)
+      regex = Regexp.new(@filter_text.chars.join(".*"), "i")
+      @matching_items = @configured_items.select {|i| regex.match i }
+      start_index = @page * @display_limit
+      @displayed_items = @matching_items.slice(start_index, @display_limit)
       @selected = @selected.clamp(0, @displayed_items.size - 1)
     end
 
@@ -112,11 +124,6 @@ module Pecorb
         puts item
         reset_color
       end
-    end
-
-    def fuzzy_filter(items, filter)
-      regex = Regexp.new(filter.chars.join(".*"), "i")
-      items.select {|i| regex.match i }
     end
   end
 end
