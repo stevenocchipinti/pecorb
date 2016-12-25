@@ -23,7 +23,8 @@ module Pecorb
 
     def items=(new_items)
       @items = new_items
-      @cursor = @cursor.clamp(0, @items.size-1)
+      max = @items.any? ? (@items.size - 1) : 0
+      @cursor = @cursor.clamp(0, max)
       reset_viewport_to_cover_cursor
     end
 
